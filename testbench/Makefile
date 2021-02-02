@@ -1,10 +1,9 @@
 VC  = iverilog
 VI  = vvp
 
-SOURCES = ../rtl/mcp3201.sv ../rtl/spi_sclk_gen.sv
+SOURCES = ../source/mcp3201.sv ../source/mcp3201_ma.sv
 
 VFLAGS  = -g2012
-
 TBS = $(wildcard tb_*.sv)
 DEFINES = -D TESTBENCH
 VCDDEPS = $(TBS:.sv=.vcd)

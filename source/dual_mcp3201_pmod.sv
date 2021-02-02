@@ -1,8 +1,10 @@
 `timescale 1ns/100ps
 `default_nettype none
 
+`define MULTICHANNEL_VERSION
+
 module dual_mcp3201_pmod #(parameter CLOCK_FREQ = 25000000,
-             parameter SAMPLE_RATE = 50000)
+                           parameter SAMPLE_RATE = 50000)
     (input wire clock,
      input wire reset,
 
@@ -18,6 +20,29 @@ module dual_mcp3201_pmod #(parameter CLOCK_FREQ = 25000000,
      output wire        rstrb,
      output wire [11:0] ldata,
      output wire        lstrb);
+
+`ifdef MULTICHANNEL_VERSION
+    /* Multichannel and sample rate accurate version */
+
+    localparam SPI_SCLK_FREQ = 1000000;
+
+    mcp3201_ma #(.CHANNELS(2),
+                 .CLOCK_FREQ(CLOCK_FREQ),
+                 .SCLK_FREQ(SPI_SCLK_FREQ),
+                 .SAMPLE_RATE(SAMPLE_RATE)) adcs
+      (.clock, .reset,
+       .spi_clk_o(radc_clk),
+       .spi_ssn_o(radc_ssn),
+       .spi_miso_i({ radc_dat, ladc_dat }),
+       .data_o({ rdata, ldata }),
+       .strb_o(rstrb));
+
+    assign ladc_clk = radc_clk;
+    assign ladc_ssn = radc_ssn;
+    assign lstrb = rstrb;
+
+`else
+    /* Single channel inaccurate version */
 
     localparam MCP3201_CLOCK_PER_SAMPLE = 17;
     localparam SCLK_FREQ = SAMPLE_RATE * MCP3201_CLOCK_PER_SAMPLE;
@@ -47,5 +72,6 @@ module dual_mcp3201_pmod #(parameter CLOCK_FREQ = 25000000,
 
     assign ladc_clk = spi_clk;
     assign radc_clk = spi_clk;
+`endif
 
 endmodule // dual_mcp3201_pmod
