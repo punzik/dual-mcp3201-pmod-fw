@@ -31,7 +31,7 @@ module cmod_a7
     logic lstrb, rstrb;
 
     dual_mcp3201_pmod #(.CLOCK_FREQ(50000000),
-                        .SAMPLE_RATE(50000)) brd
+                        .SAMPLE_RATE(44100)) brd
     (.clock, .reset,
 
      .ladc_ssn(PMOD0[0]),
